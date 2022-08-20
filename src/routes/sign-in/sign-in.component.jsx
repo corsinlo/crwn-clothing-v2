@@ -1,12 +1,13 @@
 import {
   signInWithGooglePopup,
-  createUserProfileDocument,
+  createUserDocumentFromAuth,
 } from '../../utils/firebase/firebase.utils';
 
 const SignIn = () => {
   const logGoogleUser = async () => {
-    const response = await signInWithGooglePopup();
-    createUserProfileDocument(response);
+    const { user } = await signInWithGooglePopup();
+    //detstructuring console response object to make obj userDocRef = doc(db, 'user', userAuth.uid) to have the option set data inour database getDoc will do the rest
+    createUserDocumentFromAuth(user);
   };
 
   return (
