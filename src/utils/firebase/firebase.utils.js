@@ -6,12 +6,13 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth'; // service Auth of Firebase
 
+
 import {
-  getFireStore,
+  getFirestore,
   doc, //get doc instance
   getDoc, // actually get dec
   setDoc, //actually edit doc
-}'firebase/firestore'; // service DB of Firebase
+} from 'firebase/firestore'; // service DB of Firebase
 
 
 const firebaseConfig = {
@@ -38,17 +39,31 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
 };
 
 export const auth = getAuth(); // rules for authtication
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+export const signInWithGooglePopup = () => signInWithPopup(auth, provider); // 
+export const signInWithGoogleRedirect = () => signInWithRedirect(auth, provider);
 
 //crete db
 
-export const db = getFireStore(); //database name in console
+export const db = getFirestore(); //database name in console
 //crete method for db
 
-const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (userAuth) => {
   const userDocRef = doc(db, 'user', userAuth.uid);
   //create temp istance for doc with reference db, collection name, unique ID, for the Auth case will be the uid we get as user from dev in console
 
   const userSnapshot = await getDoc(userDocRef); // check if insatnce obj in database exist
-  console.log(userSnapshot.exists());
+  if (!userSnapshot.exists()) {
+    const { displayName, email } = userAuth;
+    const createAt = new Date(); //find out when user get in
+    try { //in case user snapshot does not exist
+      await setDoc(userDocRef, {
+        displayName,
+        email,
+        createAt,
+      });
+    } catch (error) {
+      console.log('error in creating the user', error.message);
+    }
+    return userDocRef;
+  }
 }
